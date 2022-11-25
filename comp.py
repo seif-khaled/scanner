@@ -7,6 +7,11 @@ class scanner:
     def __init__(self,text):
         self.text=text
         self.text=self.text.split()
+        self.items=dict()
+        self.dict_keys=["Reserved_word","add","subtract","multiply","division","equal","bigger than","smaller than","not equal to","identifier","left brace","right brace"]
+        for i in range(len(self.dict_keys)):
+            self.items[self.dict_keys[i]]={}
+            
     def idnetifier_chekcer(self):
         pass
     def reserved_words_chekcer(self):
@@ -28,8 +33,12 @@ class scanner:
                 continue
             else:
                 for i in range(len(self.text)):
-                    res=re.match(pattern,self.text)
-                    if self.text[i]
+                    res=re.match(pattern,self.text[i])
+                    if res:
+
+
+
+
 
 
                 
