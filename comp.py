@@ -31,12 +31,17 @@ class scanner:
                 continue
             else:
                 if self.text[i] not in self.patternkw:
-                    res=re.match(pattern_ident,text)
-                    res2=re.match(pattern_int_const,text)
-                    res3=re.match(pattern_float_const,text)
+                    res=re.match(pattern_ident,text[i])
+                    res2=re.match(pattern_int_const,text[i])
+                    res3=re.match(pattern_float_const,text[i])
                     if res:
                         self.items["identifier"][self.text[i]]=i
-                    else
+                    elif res2:
+                        self.items=["constant"][self.text[i]]=i
+                    elif res3:
+                        self.items=["constant"][self.text[i]]=i
+                    else:
+                        continue
     def reserved_words_chekcer(self):
         switch=0
         for i in range(len(self.text)):
@@ -106,6 +111,8 @@ class scanner:
                          self.items["semicolon"][pattern[key_item_index]]=i
                     else:
                         continue
+
+    def 
 
                     # self.items[pattern[key_item_index]][pattern[key_item_index]]=
                 # res=re.match(pattern,self.text[i])
