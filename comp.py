@@ -4,22 +4,120 @@ import os,sys
 
 
 class scanner:
-    def __init__(self,text):
+    def __init__(self,text,actulnooflex):
         self.text=text
+        self.actualno=actulnooflex
         self.text=self.text.split()
+        self.indexx=0
         self.items=dict()
+        self.table=[]
+        self.pattern_ident="[a-zA-Z_][a-zA-Z0-9_]*"
+        self.pattern_int_const="-?[0-9]+"
+        self.pattern_float_const="-?\d+\.\d+"
         self.patternkw="(Read|Write|Begin|End|Declare|INT|FLOAT|Set|IF|Then|Else|ENDIF|While|DO|ENDWHILE|Until|ENDUNTIL|Call)"
         self.patternoperators=["(",")","+","-","*","/","=","!","<",">",";"] 
         self.dict_keys=["Reserved_word","add","subtract","multiply","division","equal","bigger than","smaller than","not equal to","identifier","left brace","right brace","semicolon","constant"]
         for i in range(len(self.dict_keys)):
-            self.items[self.dict_keys[i]]=[]        
-            
+            self.items[self.dict_keys[i]]=[]
+        for i in range(self.actualno):
+            self.table.append([])        
+    def is_identifirr(self,word):
+        if re.match(self.pattern_ident,word):
+            return True
+        else:
+            return False
+    def is_constsnt(self,word):
+        if re.match(self.pattern_int_const,word) or re.match(self.pattern_float_const,word):
+            return True
+        else:
+            return False
+    def is_reserved_word(self,word):
+        if word in self.patternkw:
+            return True
+        else:
+            return False
+    def is_operstor(self,word):
+        if word in self.patternoperators:
+            return True
+        else:
+            return False
+    def create_table(self):
+        switch=0
+        self.indexx=0
+        for i in range(len(self.text)):
+            if(self.text[i]=='{'):
+                switch=1
+                # skipper+=1
+                continue
+            if(switch==1 and self.text[i]!='}' ):
+                continue
+            if(self.text[i]=='}'):
+                switch=0
+                continue
+            else:
+                    
+                if self.is_reserved_word(self.text[i]):
+                    self.table[self.indexx].append(self.text[i])
+                    self.table[self.indexx].append("resrved word")
+                    self.indexx+=1
+                elif self.is_constsnt(self.text[i]):
+                    self.table[self.indexx].append(self.text[i])
+                    self.table[self.indexx].append("constant")
+                    self.indexx+=1
+                elif  self.is_operstor(self.text[i]):
+                    if self.text[i]=="+":
+                        self.table[self.indexx].append(self.text[i])
+                        self.table[self.indexx].append("add")
+                        self.indexx+=1
+                    elif self.text[i]=="-":
+                        self.table[self.indexx].append(self.text[i])
+                        self.table[self.indexx].append("subtract")
+                        self.indexx+=1
+                    elif self.text[i]=="*":
+                        self.table[self.indexx].append(self.text[i])
+                        self.table[self.indexx].append("multiply")
+                        self.indexx+=1
+                    elif self.text[i]=="/":
+                        self.table[self.indexx].append(self.text[i])
+                        self.table[self.indexx].append("division")
+                        self.indexx+=1
+                    elif self.text[i]=="=":
+                        self.table[self.indexx].append(self.text[i])
+                        self.table[self.indexx].append("equal")
+                        self.indexx+=1
+                    elif self.text[i]=="<":
+                        self.table[self.indexx].append(self.text[i])
+                        self.table[self.indexx].append("smaller than")
+                        self.indexx+=1
+                    elif self.text[i]==">":
+                        self.table[self.indexx].append(self.text[i])
+                        self.table[self.indexx].append("bigger than")
+                        self.indexx+=1
+                    elif self.text[i]=="!":
+                        self.table[self.indexx].append(self.text[i])
+                        self.table[self.indexx].append("not equal to")
+                        self.indexx+=1
+                    elif self.text[i]=="(":
+                        self.table[self.indexx].append(self.text[i])
+                        self.table[self.indexx].append("left bracket")
+                        self.indexx+=1
+                    elif self.text[i]==")":
+                        self.table[self.indexx].append(self.text[i])
+                        self.table[self.indexx].append("right bracket")
+                        self.indexx+=1
+                    elif self.text[i]==";":
+                        self.table[self.indexx].append(self.text[i])
+                        self.table[self.indexx].append("semi colon")
+                        self.indexx+=1
+
+                elif self.is_identifirr(self.text[i]):
+                    self.table[self.indexx].append(self.text[i])
+                    self.table[self.indexx].append("identifirr")
+                    self.indexx+=1
     def idnetifier_const_chekcer(self):
         satsified=0
         switch=0
-        pattern_ident="[a-zA-Z_][a-zA-Z0-9_]*"
-        pattern_int_const="-?[0-9]+"
-        pattern_float_const="-?\d+\.\d+"
+        
         for i in range(len(self.text)):
             chekcer=re.match(self.patternkw,self.text[i])
             # print(chekcer)
@@ -36,20 +134,23 @@ class scanner:
                 if (chekcer==None) and (self.text[i] not in self.patternoperators) :
                     # res=is_match_idenetifier(self.text[i])
                     # print(res)
-                    res=re.match(pattern_ident,self.text[i])
-                    res2=re.match(pattern_int_const,self.text[i])
-                    res3=re.match(pattern_float_const,self.text[i])
+                    res=re.match(self.pattern_ident,self.text[i])
+                    res2=re.match(self.pattern_int_const,self.text[i])
+                    res3=re.match(self.pattern_float_const,self.text[i])
                 
                     if res:
                         self.items["identifier"].append(self.text[i])
                         self.items["identifier"].append(i)
+                        
                     elif res2:
                         # print("iam a constant")
                         self.items["constant"].append(self.text[i])
                         self.items["constant"].append(i)
+                        
                     elif res3:
                          self.items["constant"].append(self.text[i])
                          self.items["constant"].append(i)
+                         
                     else:
                         continue
     def reserved_words_chekcer(self):
@@ -70,6 +171,7 @@ class scanner:
                 if res:
                     self.items["Reserved_word"].append(self.text[i])
                     self.items["Reserved_word"].append(i)
+                    
                 else:
                     continue
 
@@ -92,61 +194,67 @@ class scanner:
                 if self.text[i] in self.patternoperators:
                     key_item_index=self.patternoperators.index(self.text[i])
                     if self.patternoperators[key_item_index]=='+':
-                        # self.items["add"][self.patternoperators[key_item_index]]=i
                         self.items["add"].append(self.patternoperators[key_item_index])
                         self.items["add"].append(i)
-
+                        
                     elif self.patternoperators[key_item_index]=='-':
-                        #  self.items["subtract"][self.patternoperators[key_item_index]]=i
-                           self.items["subtract"].append(self.patternoperators[key_item_index])
-                           self.items["subtract"].append(i)
-
+                        self.items["subtract"].append(self.patternoperators[key_item_index])
+                        self.items["subtract"].append(i)
+                        
                     elif self.patternoperators[key_item_index]=='*':
-                           self.items["multiply"].append(self.patternoperators[key_item_index])
-                           self.items["multiply"].append(i)
+                        self.items["multiply"].append(self.patternoperators[key_item_index])
+                        self.items["multiply"].append(i)
+                    
                         #  self.items["multiply"][self.patternoperators[key_item_index]]=i
 
                     elif self.patternoperators[key_item_index]=='/':
-                           self.items["division"].append(self.patternoperators[key_item_index])
-                           self.items["division"].append(i)
+                        self.items["division"].append(self.patternoperators[key_item_index])
+                        self.items["division"].append(i)
+                        
 
                         #  self.items["division"][self.patternoperators[key_item_index]]=i
 
                     elif self.patternoperators[key_item_index]=='=':
-                           self.items["equal"].append(self.patternoperators[key_item_index])
-                           self.items["equal"].append(i)
-
+                        self.items["equal"].append(self.patternoperators[key_item_index])
+                        self.items["equal"].append(i)
+                       
                         #  self.items["equal"][self.patternoperators[key_item_index]]=i
 
                     elif self.patternoperators[key_item_index]=='<':
-                          self.items["smaller than"].append(self.patternoperators[key_item_index])
-                          self.items["smaller than"].append(i)
+                        self.items["smaller than"].append(self.patternoperators[key_item_index])
+                        self.items["smaller than"].append(i)
+                       
 
                         #  self.items["smaller than"][self.patternoperators[key_item_index]]=i
 
                     elif self.patternoperators[key_item_index]=='>':
-                          self.items["bigger than"].append(self.patternoperators[key_item_index])
-                          self.items["bigger than"].append(i)
+                        self.items["bigger than"].append(self.patternoperators[key_item_index])
+                        self.items["bigger than"].append(i)
+                        
                         #  self.items["bigger than"][self.patternoperators[key_item_index]]=i
 
                     elif self.patternoperators[key_item_index]=='!':
-                          self.items["not equal to"].append(self.patternoperators[key_item_index])
-                          self.items["not equal to"].append(i)
+                        self.items["not equal to"].append(self.patternoperators[key_item_index])
+                        self.items["not equal to"].append(i)
+                      
                         #  self.items["not equal to"][self.patternoperators[key_item_index]]=i
 
                     elif self.patternoperators[key_item_index]=='(':
-                          self.items["left brace"].append(self.patternoperators[key_item_index])
-                          self.items["left brace"].append(i)
+                        self.items["left brace"].append(self.patternoperators[key_item_index])
+                        self.items["left brace"].append(i)
+                      
                         #  self.items["left brace"][self.patternoperators[key_item_index]]=i
 
                     elif self.patternoperators[key_item_index]==')':
-                          self.items["right brace"].append(self.patternoperators[key_item_index])
-                          self.items["right brace"].append(i)
+                        self.items["right brace"].append(self.patternoperators[key_item_index])
+                        self.items["right brace"].append(i)
+                        
                         #  self.items["right brace"][self.patternoperators[key_item_index]]=i
 
                     elif self.patternoperators[key_item_index]==';':
-                          self.items["semicolon"].append(self.patternoperators[key_item_index])
-                          self.items["semicolon"].append(i)
+                        self.items["semicolon"].append(self.patternoperators[key_item_index])
+                        self.items["semicolon"].append(i)
+                     
                         #  self.items["semicolon"][self.patternoperators[key_item_index]]=i
                     else:
                         continue
@@ -158,52 +266,6 @@ class scanner:
 
 
 ###################################################
-def table_list(dictionary,words,actual_number_of_lexmes,num_of_lex):
-    Index=0
-    final_table=[]
-    switch=0
-    indcies_to_skip=[]
-    index_toput_into=0
-    for i in range(actual_number_of_lexmes):
-        final_table.append([])
-    #loop on each key and get the index of each items
-   
-    counter=0
-    for i in range(len(words)):
-        if(words[i]=='{'):
-            switch=1
-            indcies_to_skip.append(i)
-            continue
-        if(switch==1 and words[i]!='}' ):
-            indcies_to_skip.append(i)
-            continue
-        if(words[i]=='}'):
-            indcies_to_skip.append(i)
-            switch=0
-            continue
-    print(indcies_to_skip)
-    flag=0
-    while(counter!=actual_number_of_lexmes and flag!=1 ):
-        if Index==num_of_lex:
-            break
-        else:
-            for i in dictionary: 
-                if Index==num_of_lex:
-                    flag=1
-                    break
-                elif Index in dictionary[i] and Index not in indcies_to_skip:
-                    index_of_current_lexem=(dictionary[i].index(Index))-1
-                    current_lex=dictionary[i][index_of_current_lexem]
-                    final_table[index_toput_into].append(current_lex)
-                    final_table[index_toput_into].append(i)
-                    Index+=1
-                    counter+=1
-                    index_toput_into+=1
-                    break
-                elif Index in indcies_to_skip:
-                    Index=(indcies_to_skip.index(Index))+1
-           
-    return final_table
             
 #######################################
 flag=0
@@ -236,16 +298,17 @@ while(flag==0):
         else:
             new_list_to_work_on.append(list_to_work_on[j])
     print(new_list_to_work_on)        
-    x=scanner(text)
+    x=scanner(text,len(new_list_to_work_on))
     x.executer()
+    x.create_table()
+    print(x.table)
     print("\n")
-    DATA=table_list(x.items,LIST,len(new_list_to_work_on),number_of_lexmes)
-    print(table_list(x.items,LIST,len(new_list_to_work_on),number_of_lexmes))
-    print(tbl(DATA,headers=["lexeme","Token"],tablefmt='fancy_grid'))
+    # DATA=table_list(x.items,LIST,len(new_list_to_work_on),number_of_lexmes)
+    # print(table_list(x.items,LIST,len(new_list_to_work_on),number_of_lexmes))
+    print(tbl(x.table,headers=["lexeme","Token"],tablefmt='fancy_grid'))
     choice=input("do you want to continue?")
     if choice=='yes':
         os.system('cls||clear')
         continue
     elif choice=='no':
         flag=1
-
